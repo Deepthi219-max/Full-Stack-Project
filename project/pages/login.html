@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - SkyBus</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles/global.css">
+  <link rel="stylesheet" href="../styles/login.css">
+</head>
+<body class="auth-body">
+  <div id="header-placeholder"></div>
+
+  <main class="auth-main">
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h2>Welcome Back</h2>
+          <p>Login to manage your bookings</p>
+        </div>
+        
+        <form id="loginForm" class="auth-form" novalidate>
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" class="form-control" placeholder="Enter your email">
+          </div>
+          
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" class="form-control" placeholder="Enter your password">
+          </div>
+          
+          <div class="auth-actions">
+            <a href="#" id="forgotPasswordLink" class="forgot-link">Forgot Password?</a>
+          </div>
+          
+          <button type="submit" class="btn btn-primary auth-btn">Login</button>
+        </form>
+
+        <div id="resetPasswordSection" class="reset-section" style="display: none;">
+          <hr class="divider">
+          <h4>Reset Password</h4>
+          <p class="reset-desc">Enter your email to receive a password reset link.</p>
+          <div class="form-group mt-2">
+            <input type="email" id="resetEmail" class="form-control" placeholder="Your email address">
+          </div>
+          <button type="button" id="resetPasswordBtn" class="btn btn-outline auth-btn mt-2">Send Reset Link</button>
+        </div>
+
+        <div class="auth-footer">
+          <p>Don't have an account? <a href="signup.html">Signup</a></p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/main.js"></script>
+</body>
+</html>
