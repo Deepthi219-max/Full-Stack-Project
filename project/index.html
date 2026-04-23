@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyBus - Modern Intercity Travel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* =========================================
+       GLOBAL STYLES
+       ========================================= */
+    :root {
+      --primary-color: #0ea5e9;
+      --primary-hover: #0284c7;
+      --secondary-color: #f0f9ff;
+      --text-dark: #1e293b;
+      --text-light: #64748b;
+      --bg-white: #ffffff;
+      --bg-light: #f8fafc;
+      --border-radius: 8px;
+      --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --box-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --transition: all 0.3s ease;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; color: var(--text-dark); background-color: var(--bg-light); line-height: 1.6; overflow-x: hidden; }
+    a { text-decoration: none; color: var(--primary-color); transition: var(--transition); cursor: pointer; }
+    a:hover { color: var(--primary-hover); }
+    ul { list-style: none; }
+
+    .btn { display: inline-block; padding: 0.75rem 1.5rem; border-radius: var(--border-radius); font-weight: 600; cursor: pointer; border: none; transition: var(--transition); text-align: center; }
+    .btn-primary { background-color: var(--primary-color); color: var(--bg-white); }
+    .btn-primary:hover { background-color: var(--primary-hover); color: var(--bg-white); box-shadow: var(--box-shadow); transform: translateY(-2px); }
+    .btn-outline { background-color: transparent; color: var(--primary-color); border: 2px solid var(--primary-color); }
+    .btn-outline:hover { background-color: var(--primary-color); color: var(--bg-white); }
+
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-dark); }
+    .form-control { width: 100%; padding: 0.75rem 1rem; border: 1px solid #cbd5e1; border-radius: var(--border-radius); font-family: inherit; font-size: 1rem; transition: var(--transition); }
+    .form-control:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2); }
+
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+    .text-center { text-align: center; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-3 { margin-top: 1rem; }
+
+    /* Single Page App functionality */
+    .page { display: none; min-height: 100vh; flex-direction: column; }
+    .page.active { display: flex; animation: fadeIn 0.3s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    /* =========================================
+       HEADER & FOOTER (Shared)
+       ========================================= */
+    .main-header { background-color: var(--bg-white); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); position: sticky; top: 0; z-index: 1000; }
+    .header-container { display: flex; justify-content: space-between; align-items: center; height: 70px; }
+    .logo { display: flex; align-items: center; gap: 0.5rem; font-size: 1.5rem; font-weight: 700; color: var(--primary-color); }
+    .logo-icon { color: var(--primary-color); }
+    .nav-links { display: flex; align-items: center; gap: 2rem; }
+    .nav-links a:not(.btn) { font-weight: 500; color: var(--text-dark); }
+    .nav-links a:not(.btn):hover { color: var(--primary-color); }
+    .nav-btn { padding: 0.5rem 1.25rem; }
+
+    .main-footer { background-color: #1e293b; color: #f8fafc; padding-top: 4rem; margin-top: auto; }
+    .footer-container { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+    .footer-logo { color: var(--bg-white); margin-bottom: 1rem; }
+    .footer-desc { color: #94a3b8; max-width: 300px; }
+    .footer-heading { font-size: 1.25rem; margin-bottom: 1.5rem; color: var(--bg-white); }
+    .footer-links li, .footer-contact li { margin-bottom: 0.75rem; }
+    .footer-links a, .footer-contact li { color: #94a3b8; display: flex; align-items: center; gap: 0.5rem; }
+    .footer-links a:hover { color: var(--primary-color); padding-left: 5px; }
+    .social-icons { display: flex; gap: 1rem; margin-top: 1.5rem; }
+    .social-icon { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background-color: #334155; border-radius: 50%; color: var(--bg-white); }
+    .social-icon:hover { background-color: var(--primary-color); }
+    .footer-bottom { text-align: center; padding: 1.5rem 0; border-top: 1px solid #334155; color: #64748b; font-size: 0.875rem; }
+
+    /* =========================================
+       HOME PAGE
+       ========================================= */
+    .hero { position: relative; height: 80vh; min-height: 600px; background-image: url('images/bus_background.png'); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; }
+    .hero-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3)); }
+    .hero-content { position: relative; z-index: 10; text-align: center; color: var(--bg-white); padding: 0 1.5rem; }
+    .hero-title { font-size: 3.5rem; font-weight: 700; margin-bottom: 1rem; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    .hero-subtitle { font-size: 1.25rem; margin-bottom: 3rem; opacity: 0.9; }
+    .search-box { background-color: var(--bg-white); padding: 1rem; border-radius: var(--border-radius); box-shadow: var(--box-shadow-hover); max-width: 900px; margin: 0 auto; }
+    .search-form { display: flex; gap: 1rem; align-items: center; }
+    .search-inputs { display: flex; flex: 1; gap: 0.5rem; background-color: var(--bg-light); border-radius: var(--border-radius); padding: 0.5rem; border: 1px solid #e2e8f0; }
+    .input-group { display: flex; align-items: center; flex: 1; background-color: var(--bg-white); border-radius: var(--border-radius); padding: 0.5rem 1rem; border: 1px solid #cbd5e1; }
+    .input-icon { color: var(--text-light); margin-right: 0.5rem; }
+    .search-input { border: none; width: 100%; font-size: 1rem; color: var(--text-dark); font-family: inherit; outline: none; }
+    .swap-icon { display: flex; align-items: center; justify-content: center; color: var(--primary-color); padding: 0 0.5rem; cursor: pointer; }
+    .search-btn { padding: 1rem 2rem; font-size: 1.1rem; height: 100%; white-space: nowrap; }
+    .features { padding: 5rem 1.5rem; flex: 1; }
+    .section-title { font-size: 2.5rem; margin-bottom: 3rem; color: var(--text-dark); }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+    .feature-card { background-color: var(--bg-white); padding: 2rem; border-radius: var(--border-radius); box-shadow: var(--box-shadow); text-align: center; transition: var(--transition); }
+    .feature-card:hover { transform: translateY(-5px); box-shadow: var(--box-shadow-hover); }
+    .feature-icon-wrapper { width: 64px; height: 64px; background-color: var(--secondary-color); color: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; }
+
+    /* =========================================
+       AUTH PAGES (Login & Signup)
+       ========================================= */
+    .auth-body { flex: 1; display: flex; align-items: center; justify-content: center; padding: 3rem 1.5rem; position: relative; background-image: url('images/bus_background.png'); background-size: cover; background-position: center; }
+    .auth-body::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(248, 250, 252, 0.85); z-index: 0; }
+    .auth-container { width: 100%; max-width: 450px; position: relative; z-index: 10; }
+    .auth-card { background-color: var(--bg-white); border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); padding: 2.5rem; }
+    .auth-header { text-align: center; margin-bottom: 2rem; }
+    .auth-header h2 { font-size: 1.8rem; color: var(--text-dark); margin-bottom: 0.5rem; }
+    .auth-actions { display: flex; justify-content: flex-end; margin-bottom: 1.5rem; }
+    .forgot-link { font-size: 0.875rem; color: var(--text-light); font-weight: 500; }
+    .auth-btn { width: 100%; padding: 0.875rem; font-size: 1rem; }
+    .auth-footer { margin-top: 2rem; text-align: center; font-size: 0.95rem; color: var(--text-light); }
+    .reset-section { margin-top: 2rem; }
+    .divider { border: 0; height: 1px; background-color: #e2e8f0; margin-bottom: 1.5rem; }
+
+    /* =========================================
+       DASHBOARD PAGE
+       ========================================= */
+    #page-dashboard { height: 100vh; overflow: hidden; background-image: url('images/bus_background.png'); background-size: cover; background-position: center; position: relative; }
+    #page-dashboard::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.85); z-index: 0; }
+    .dashboard-header { position: relative; z-index: 10; background-color: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); height: 70px; }
+    .user-actions { display: flex; align-items: center; gap: 1.5rem; }
+    .user-greeting { color: var(--bg-white); font-weight: 500; }
+    .logout-btn { color: var(--bg-white); border-color: rgba(255, 255, 255, 0.5); padding: 0.4rem 1rem; }
+    .dashboard-main { position: relative; z-index: 10; flex: 1; display: flex; flex-direction: column; padding: 1.5rem; gap: 1.5rem; height: calc(100vh - 70px); overflow: hidden; }
+    .dashboard-search { background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 1rem; border-radius: var(--border-radius); border: 1px solid rgba(255, 255, 255, 0.2); flex-shrink: 0; }
+    .dashboard-search .search-inputs { display: flex; flex: 1; gap: 0.5rem; background-color: var(--bg-white); border-radius: var(--border-radius); padding: 0.5rem; }
+    .dashboard-search .input-group { flex: 1; background-color: transparent; border: none; padding: 0; }
+    .dashboard-search .search-input { background-color: transparent; padding: 0.5rem; color: var(--text-dark); }
+    .bus-listings { flex: 1; display: flex; flex-direction: column; background-color: var(--bg-light); border-radius: 12px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+    .listings-header { padding: 1rem 1.5rem; background-color: var(--bg-white); border-bottom: 1px solid #e2e8f0; flex-shrink: 0; }
+    .bus-cards-container { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; flex: 1; overflow-y: auto; }
+    .bus-card { display: flex; align-items: center; justify-content: space-between; background-color: var(--bg-white); padding: 1.25rem 1.5rem; border-radius: var(--border-radius); box-shadow: var(--box-shadow); border: 1px solid #f1f5f9; transition: transform 0.2s ease; flex-wrap: wrap; }
+    .bus-info { flex: 1; min-width: 200px; }
+    .bus-timing { display: flex; align-items: center; flex: 2; justify-content: center; gap: 1.5rem; min-width: 300px; margin: 1rem 0; }
+    .time-block { display: flex; flex-direction: column; text-align: center; }
+    .time { font-weight: 700; font-size: 1.1rem; }
+    .location, .duration { font-size: 0.85rem; color: var(--text-light); }
+    .duration-block { display: flex; flex-direction: column; align-items: center; flex: 1; max-width: 150px; }
+    .line { width: 100%; height: 2px; background-color: #cbd5e1; position: relative; margin-top: 5px; }
+    .bus-booking { flex: 1; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; min-width: 150px; }
+    .price { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); }
+    
+    @media (max-width: 768px) {
+      .search-form { flex-direction: column; }
+      .search-inputs { flex-direction: column; width: 100%; }
+      .dashboard-search .search-inputs { flex-direction: column; }
+      .bus-card { flex-direction: column; align-items: stretch; }
+      .bus-booking { align-items: stretch; flex-direction: row; justify-content: space-between; margin-top: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================
+       SHARED COMPONENTS TEMPLATES
+       ========================================= -->
+  <template id="tpl-header">
+    <header class="main-header">
+      <div class="container header-container">
+        <a onclick="navigateTo('home')" class="logo">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo-icon"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+          <span>SkyBus</span>
+        </a>
+        <nav class="main-nav">
+          <ul class="nav-links">
+            <li><a onclick="navigateTo('home')">Home</a></li>
+            <li><a onclick="navigateTo('login')">Login</a></li>
+            <li><a onclick="navigateTo('signup')" class="btn btn-primary nav-btn">Signup</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+  </template>
+
+  <template id="tpl-footer">
+    <footer class="main-footer">
+      <div class="container footer-container">
+        <div class="footer-col">
+          <div class="logo footer-logo">
+            <span>SkyBus</span>
+          </div>
+          <p class="footer-desc">Your trusted partner for comfortable and safe intercity bus travel.</p>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-heading">Quick Links</h4>
+          <ul class="footer-links">
+            <li><a onclick="navigateTo('home')">Home</a></li>
+            <li><a onclick="navigateTo('login')">Login</a></li>
+            <li><a onclick="navigateTo('signup')">Signup</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-heading">Contact Us</h4>
+          <ul class="footer-contact">
+            <li>support@skybus.com</li>
+            <li>+1 234 567 890</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom"><p>&copy; 2026 SkyBus Booking. All rights reserved.</p></div>
+    </footer>
+  </template>
+
+
+  <!-- =========================================
+       PAGE: HOME
+       ========================================= -->
+  <div id="page-home" class="page active">
+    <div id="home-header"></div>
+    <section class="hero">
+      <div class="hero-overlay"></div>
+      <div class="container hero-content">
+        <h1 class="hero-title">Discover the Joy of Journey</h1>
+        <p class="hero-subtitle">Book comfortable, safe, and reliable bus tickets for your next adventure.</p>
+        <div class="search-box">
+          <form id="homeSearchForm" class="search-form">
+            <div class="search-inputs">
+              <div class="input-group">
+                <input type="text" id="homeFrom" class="search-input" placeholder="From (e.g. New York)">
+              </div>
+              <div class="input-group">
+                <input type="text" id="homeTo" class="search-input" placeholder="To (e.g. Boston)">
+              </div>
+              <div class="input-group">
+                <input type="date" id="homeDate" class="search-input">
+              </div>
+            </div>
+            <button type="button" onclick="searchBuses()" class="btn btn-primary search-btn">Search Buses</button>
+          </form>
+        </div>
+      </div>
+    </section>
+    <section class="features container">
+      <h2 class="text-center section-title">Why Choose SkyBus?</h2>
+      <div class="features-grid">
+        <div class="feature-card"><h3>Lightning Fast Booking</h3><p>Book tickets in a few clicks.</p></div>
+        <div class="feature-card"><h3>Secure Payments</h3><p>State-of-the-art encryption.</p></div>
+        <div class="feature-card"><h3>Premium Comfort</h3><p>Travel in style and comfort.</p></div>
+      </div>
+    </section>
+    <div id="home-footer"></div>
+  </div>
+
+
+  <!-- =========================================
+       PAGE: LOGIN
+       ========================================= -->
+  <div id="page-login" class="page">
+    <div id="login-header"></div>
+    <div class="auth-body">
+      <div class="auth-container">
+        <div class="auth-card">
+          <div class="auth-header">
+            <h2>Welcome Back</h2>
+            <p>Login to manage your bookings</p>
+          </div>
+          <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" id="loginEmail" class="form-control" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" id="loginPass" class="form-control" placeholder="Enter your password">
+            </div>
+            <div class="auth-actions">
+              <a onclick="toggleReset()" class="forgot-link">Forgot Password?</a>
+            </div>
+            <button type="submit" class="btn btn-primary auth-btn">Login</button>
+          </form>
+
+          <div id="resetSection" class="reset-section" style="display: none;">
+            <hr class="divider">
+            <h4>Reset Password</h4>
+            <div class="form-group mt-2">
+              <input type="email" id="resetEmail" class="form-control" placeholder="Your email">
+            </div>
+            <button type="button" onclick="handleReset()" class="btn btn-outline auth-btn mt-2">Send Reset Link</button>
+          </div>
+
+          <div class="auth-footer">
+            <p>Don't have an account? <a onclick="navigateTo('signup')">Signup</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="login-footer"></div>
+  </div>
+
+
+  <!-- =========================================
+       PAGE: SIGNUP
+       ========================================= -->
+  <div id="page-signup" class="page">
+    <div id="signup-header"></div>
+    <div class="auth-body">
+      <div class="auth-container">
+        <div class="auth-card">
+          <div class="auth-header">
+            <h2>Create an Account</h2>
+            <p>Join SkyBus today</p>
+          </div>
+          <form id="signupForm" onsubmit="handleSignup(event)">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="signName" class="form-control" placeholder="Enter full name">
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="signEmail" class="form-control" placeholder="Enter email">
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" id="signPass" class="form-control" placeholder="Create password">
+            </div>
+            <div class="form-group">
+              <label>Confirm Password</label>
+              <input type="password" id="signConfirm" class="form-control" placeholder="Confirm password">
+            </div>
+            <button type="submit" class="btn btn-primary auth-btn mt-3">Signup</button>
+          </form>
+          <div class="auth-footer">
+            <p>Already have an account? <a onclick="navigateTo('login')">Login</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="signup-footer"></div>
+  </div>
+
+
+  <!-- =========================================
+       PAGE: DASHBOARD
+       ========================================= -->
+  <div id="page-dashboard" class="page">
+    <header class="dashboard-header">
+      <div class="container header-container">
+        <a onclick="navigateTo('home')" class="logo">
+          <span style="color: white; font-weight:700; font-size:1.5rem">SkyBus</span>
+        </a>
+        <div class="user-actions">
+          <span class="user-greeting">Hello, User</span>
+          <a onclick="navigateTo('login')" class="btn btn-outline logout-btn">Logout</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="dashboard-main container">
+      <section class="dashboard-search">
+        <div class="modify-search-form">
+          <div class="search-inputs">
+            <div class="input-group"><input type="text" class="search-input" value="New York" placeholder="From"></div>
+            <div class="input-group"><input type="text" class="search-input" value="Boston" placeholder="To"></div>
+            <div class="input-group"><input type="date" class="search-input" value="2026-05-01"></div>
+          </div>
+          <button class="btn btn-primary modify-btn">Modify Search</button>
+        </div>
+      </section>
+
+      <section class="bus-listings">
+        <div class="listings-header">
+          <h3>Available Buses (3)</h3>
+        </div>
+        <div class="bus-cards-container">
+          <div class="bus-card">
+            <div class="bus-info"><h4>Sky Premium</h4><span class="bus-type">A/C Sleeper</span></div>
+            <div class="bus-timing">
+              <div class="time-block"><span class="time">08:00 AM</span><span class="location">New York</span></div>
+              <div class="duration-block"><span class="duration">4h 30m</span><div class="line"></div></div>
+              <div class="time-block"><span class="time">12:30 PM</span><span class="location">Boston</span></div>
+            </div>
+            <div class="bus-booking">
+              <div class="price">$45.00</div>
+              <button class="btn btn-primary" onclick="alert('Ticket Booked Successfully')">Book Now</button>
+            </div>
+          </div>
+          
+          <div class="bus-card">
+            <div class="bus-info"><h4>CityLink Standard</h4><span class="bus-type">Non A/C Seater</span></div>
+            <div class="bus-timing">
+              <div class="time-block"><span class="time">10:15 AM</span><span class="location">New York</span></div>
+              <div class="duration-block"><span class="duration">5h 00m</span><div class="line"></div></div>
+              <div class="time-block"><span class="time">03:15 PM</span><span class="location">Boston</span></div>
+            </div>
+            <div class="bus-booking">
+              <div class="price">$25.00</div>
+              <button class="btn btn-primary" onclick="alert('Ticket Booked Successfully')">Book Now</button>
+            </div>
+          </div>
+
+          <div class="bus-card">
+            <div class="bus-info"><h4>Sky Luxury</h4><span class="bus-type">Volvo Multi-Axle A/C</span></div>
+            <div class="bus-timing">
+              <div class="time-block"><span class="time">02:30 PM</span><span class="location">New York</span></div>
+              <div class="duration-block"><span class="duration">4h 15m</span><div class="line"></div></div>
+              <div class="time-block"><span class="time">06:45 PM</span><span class="location">Boston</span></div>
+            </div>
+            <div class="bus-booking">
+              <div class="price">$60.00</div>
+              <button class="btn btn-primary" onclick="alert('Ticket Booked Successfully')">Book Now</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+
+  <!-- =========================================
+       JAVASCRIPT FOR LOGIC
+       ========================================= -->
+  <script>
+    // Inject templates
+    const headerHtml = document.getElementById('tpl-header').innerHTML;
+    const footerHtml = document.getElementById('tpl-footer').innerHTML;
+
+    document.getElementById('home-header').innerHTML = headerHtml;
+    document.getElementById('home-footer').innerHTML = footerHtml;
+    document.getElementById('login-header').innerHTML = headerHtml;
+    document.getElementById('login-footer').innerHTML = footerHtml;
+    document.getElementById('signup-header').innerHTML = headerHtml;
+    document.getElementById('signup-footer').innerHTML = footerHtml;
+
+    // Navigation logic
+    function navigateTo(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + pageId).classList.add('active');
+      window.scrollTo(0,0);
+    }
+
+    // Home Search logic
+    function searchBuses() {
+      const from = document.getElementById('homeFrom').value;
+      const to = document.getElementById('homeTo').value;
+      const date = document.getElementById('homeDate').value;
+      if (!from || !to || !date) {
+        alert('Please fill all search fields');
+        return;
+      }
+      navigateTo('dashboard');
+    }
+
+    // Login logic
+    function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const pass = document.getElementById('loginPass').value;
+      if (!email || !pass) {
+        alert('Please enter both email and password');
+        return;
+      }
+      navigateTo('dashboard');
+      document.getElementById('loginForm').reset();
+    }
+
+    function toggleReset() {
+      const section = document.getElementById('resetSection');
+      section.style.display = section.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function handleReset() {
+      const email = document.getElementById('resetEmail').value;
+      if (!email) {
+        alert('Please enter email to reset password');
+        return;
+      }
+      alert('Reset link sent to your email');
+      document.getElementById('resetSection').style.display = 'none';
+      document.getElementById('resetEmail').value = '';
+    }
+
+    // Signup logic
+    function handleSignup(e) {
+      e.preventDefault();
+      const name = document.getElementById('signName').value;
+      const email = document.getElementById('signEmail').value;
+      const pass = document.getElementById('signPass').value;
+      const confirm = document.getElementById('signConfirm').value;
+      
+      if (!name || !email || !pass || !confirm) {
+        alert('Please fill all fields');
+        return;
+      }
+      if (pass !== confirm) {
+        alert('Passwords do not match');
+        return;
+      }
+      alert('Signup successful! Please login.');
+      navigateTo('login');
+      document.getElementById('signupForm').reset();
+    }
+  </script>
+</body>
+</html>
