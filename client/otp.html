@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Verification - BusGo</title>
+  <link rel="stylesheet" href="styles/global.css">
+  <link rel="stylesheet" href="styles/otp.css">
+</head>
+<body>
+  <div class="otp-container">
+    <div class="otp-card glass-card">
+      <div class="otp-header">
+        <h2>Verify OTP</h2>
+        <p>Enter the 6-digit code sent to you</p>
+        <p class="otp-email" id="otpEmail"></p>
+      </div>
+
+      <form id="otpForm" onsubmit="handleOTPSubmit(event)">
+        <div class="otp-inputs-wrapper">
+          <input type="text" class="otp-input" maxlength="1" inputmode="numeric" id="otp1">
+          <input type="text" class="otp-input" maxlength="1" inputmode="numeric" id="otp2">
+          <input type="text" class="otp-input" maxlength="1" inputmode="numeric" id="otp3">
+          <input type="text" class="otp-input" maxlength="1" inputmode="numeric" id="otp4">
+          <input type="text" class="otp-input" maxlength="1" inputmode="numeric" id="otp5">
+          <input type="text" class="otp-input" maxlength="1" inputmode="numeric" id="otp6">
+        </div>
+
+        <div class="timer-section">
+          <div class="timer-text">Time remaining:</div>
+          <div class="timer-count" id="timerCount">60s</div>
+        </div>
+
+        <button type="submit" class="verify-btn" id="verifyBtn">Verify OTP</button>
+      </form>
+
+      <div class="resend-section">
+        <div class="resend-text">Didn't receive the code?</div>
+        <button type="button" class="resend-btn" id="resendBtn" onclick="handleResendOTP()" disabled>
+          Resend OTP
+        </button>
+      </div>
+
+      <div class="otp-info">
+        <a href="forgot-password.html">← Change Email/Mobile</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="modal">
+    <div class="modal-content">
+      <div class="checkmark">✓</div>
+      <h2>OTP Verified!</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Your identity has been confirmed. You can now reset your password.</p>
+      <button class="btn btn-primary btn-block" onclick="redirectToReset()">Continue to Reset Password</button>
+    </div>
+  </div>
+
+  <script src="scripts/utilities.js"></script>
+  <script>
+    let timerInterval = null;
+    let timerRunning = false;
+    const OTP_DURATION = 60;
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      const email = Storage.get('resetEmail');
+      if (!email) {
+        window.location.href = 'forgot-password.html';
+        return;
+      }
+      document.getElementById('otpEmail').textContent = email;
+      
+      setupAutoMove('otp-input');
+      startTimer();
+      
+      // Auto-fill OTP for testing (comment out in production)
+      const storedOTP = Storage.get('resetOTP');
+      if (storedOTP) {
+        setTimeout(() => {
+          // Auto fill with first 3 digits for demo
+          setOTPValues(storedOTP.substring(0, 3) + '000');
+        }, 500);
+      }
+    });
+
+    // Start Timer
+    function startTimer() {
+      let remaining = OTP_DURATION;
+      timerRunning = true;
+      document.getElementById('resendBtn').disabled = true;
+
+      timerInterval = Timer.startCountdown(
+        remaining,
+        (seconds) => {
+          const timerElement = document.getElementById('timerCount');
+          timerElement.textContent = seconds + 's';
+          
+          if (seconds <= 10) {
+            timerElement.classList.add('warning');
+          } else {
+            timerElement.classList.remove('warning');
+          }
+        },
+        () => {
+          timerRunning = false;
+          document.getElementById('timerCount').textContent = 'Expired';
+          document.getElementById('timerCount').style.color = '#ef4444';
+          document.getElementById('resendBtn').disabled = false;
+          UI.disableButton('verifyBtn');
+        }
+      );
+    }
+
+    // Handle OTP Submit
+    function handleOTPSubmit(e) {
+      e.preventDefault();
+      
+      if (!timerRunning) {
+        UI.showAlert('OTP Expired! Please request a new one.', 'error');
+        return;
+      }
+
+      const enteredOTP = getOTPValue('otp-input');
+      const correctOTP = Storage.get('resetOTP');
+
+      if (enteredOTP.length !== 6) {
+        UI.showAlert('Please enter all 6 digits', 'warning');
+        return;
+      }
+
+      // For demo: accept OTP that starts with correct digits or any 6-digit code
+      if (enteredOTP === correctOTP || /^\d{6}$/.test(enteredOTP)) {
+        clearInterval(timerInterval);
+        
+        // Show success
+        UI.showSuccessPopup(
+          'OTP Verified!',
+          'Your identity has been confirmed successfully.',
+          () => redirectToReset()
+        );
+
+        // Save verification status
+        Storage.set('otpVerified', true);
+        Storage.set('verifiedEmail', Storage.get('resetEmail'));
+      } else {
+        UI.showAlert('Incorrect OTP. Please try again.', 'error');
+        // Clear inputs
+        document.querySelectorAll('.otp-input').forEach(input => input.value = '');
+        document.getElementById('otp1').focus();
+      }
+    }
+
+    // Handle Resend OTP
+    function handleResendOTP() {
+      const newOTP = FakeData.generateOTP();
+      Storage.set('resetOTP', newOTP);
+      
+      UI.disableButton('resendBtn');
+      document.getElementById('resendBtn').textContent = 'Sending...';
+      
+      setTimeout(() => {
+        clearInterval(timerInterval);
+        document.querySelectorAll('.otp-input').forEach(input => input.value = '');
+        document.getElementById('otp1').focus();
+        
+        UI.enableButton('resendBtn');
+        document.getElementById('resendBtn').textContent = 'Resend OTP';
+        
+        startTimer();
+        UI.showAlert('New OTP has been sent!', 'success');
+      }, 1500);
+    }
+
+    // Redirect to Reset Password
+    function redirectToReset() {
+      window.location.href = 'reset-password.html';
+    }
+  </script>
+</body>
+</html>

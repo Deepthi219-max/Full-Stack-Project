@@ -1,0 +1,206 @@
+/* OTP Verification Page Styles */
+
+.otp-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.otp-card {
+  width: 100%;
+  max-width: 450px;
+}
+
+.otp-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.otp-header h2 {
+  color: white;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.otp-header p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.otp-email {
+  color: white;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.otp-inputs-wrapper {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.otp-input {
+  width: 60px;
+  height: 60px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  transition: var(--transition);
+  caret-color: white;
+}
+
+.otp-input:focus {
+  outline: none;
+  border-color: white;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.otp-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 1rem;
+}
+
+.timer-section {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+.timer-text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.timer-count {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  font-family: 'Courier New', monospace;
+}
+
+.timer-count.warning {
+  color: #fbbf24;
+  animation: pulse 1s ease infinite;
+}
+
+.verify-btn {
+  width: 100%;
+  padding: 14px;
+  background: white;
+  color: #667eea;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  margin-bottom: 1rem;
+}
+
+.verify-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+.verify-btn:active {
+  transform: translateY(0);
+}
+
+.verify-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.resend-section {
+  text-align: center;
+}
+
+.resend-text {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.resend-btn {
+  background: none;
+  border: 2px solid white;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.resend-btn:hover:not(:disabled) {
+  background: white;
+  color: #667eea;
+  transform: translateY(-2px);
+}
+
+.resend-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.otp-info {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+}
+
+.otp-info a {
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.otp-info a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .otp-card {
+    max-width: 100%;
+  }
+
+  .otp-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .otp-input {
+    width: 50px;
+    height: 50px;
+    font-size: 1.25rem;
+  }
+
+  .otp-inputs-wrapper {
+    gap: 8px;
+  }
+
+  .timer-count {
+    font-size: 1.5rem;
+  }
+}
